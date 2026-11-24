@@ -3,16 +3,20 @@
     stop(sprintf("File not found: %s", path), call. = FALSE)
   }
   df <- tryCatch(
-    utils::read.table(
-      path,
+    data.table::fread(
+      file = path,
       header = FALSE,
-      sep = "",
       quote = "",
-      comment.char = "",
-      stringsAsFactors = FALSE,
-      colClasses = rep("character", 6L),
-      fill = FALSE
+      colClasses = "character",
+      na.strings = NULL,
+      fill = FALSE,
+      data.table = FALSE,
+      showProgress = FALSE
     ),
+    # fread can warn and return only the rows before a malformed record.
+    warning = function(w) {
+      stop(sprintf("%s: expected 6 whitespace-delimited columns; incomplete BIM read", path), call. = FALSE)
+    },
     error = function(e) {
       stop(sprintf("%s: expected 6 whitespace-delimited columns", path), call. = FALSE)
     }
@@ -34,6 +38,7 @@
     idx <- which(!known_chr)[[1]]
     stop(sprintf("%s:%d: unsupported chr label %s; expected 1-22, X (Y/MT are ignored)", path, idx, sQuote(df$chr[[idx]])), call. = FALSE)
   }
+  .warn_allele_cap(df$a1, df$a2, path, seq_len(nrow(df)))
   bad_allele <- is.na(df$a1) | is.na(df$a2) | df$a1 == "" | df$a2 == ""
   if (any(bad_allele)) {
     stop(sprintf("%s:%d: a1 and a2 must be non-empty", path, which(bad_allele)[[1]]), call. = FALSE)

@@ -347,6 +347,8 @@ statistics, annotations, genotypes, and LD panels into those
 coordinates.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(statgen)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">set_verbosity</span>(<span class="st">&quot;quiet&quot;</span>)</span></code></pre></div>
+<p>We use <code>quiet</code> to hide progress messages and loading
+summaries. Warnings remain visible.</p>
 <div id="reference-sumstats-and-annotations" class="section level2">
 <h2>Reference, Sumstats, And Annotations</h2>
 <p>The bundled package fixtures are intentionally tiny so that examples
@@ -374,14 +376,42 @@ analysis pattern on those files, see
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;anno1.bed&quot;</span>, <span class="st">&quot;anno2.bed&quot;</span>),</span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>)</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>annotations <span class="ot">&lt;-</span> <span class="fu">load_annotations</span>(annotation_paths, reference)</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">num_snp</span>(reference)</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; [1] 8</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">logpvec</span>(sumstats))</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; [1] 1.920819 0.301030 1.301030 0.698970 0.397940 2.522879</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="fu">colnames</span>(<span class="fu">annomat</span>(annotations))</span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; [1] &quot;anno1&quot; &quot;anno2&quot;</span></span></code></pre></div>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>binary_annotations <span class="ot">&lt;-</span> <span class="fu">load_annotations</span>(annotation_paths, reference)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>grouped_annotations <span class="ot">&lt;-</span> <span class="fu">load_annotation</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;grouped.annot&quot;</span>, <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span>),</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  reference,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="at">has_header =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">group_column =</span> <span class="st">&quot;group&quot;</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>)</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>continuous_path <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.annot&quot;</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>  <span class="st">&quot;chrom</span><span class="sc">\t</span><span class="st">start0</span><span class="sc">\t</span><span class="st">end0</span><span class="sc">\t</span><span class="st">score&quot;</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>  <span class="st">&quot;1</span><span class="sc">\t</span><span class="st">99</span><span class="sc">\t</span><span class="st">200</span><span class="sc">\t</span><span class="st">0.5&quot;</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>  <span class="st">&quot;1</span><span class="sc">\t</span><span class="st">299</span><span class="sc">\t</span><span class="st">400</span><span class="sc">\t</span><span class="st">1.5&quot;</span>,</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>  <span class="st">&quot;X</span><span class="sc">\t</span><span class="st">99</span><span class="sc">\t</span><span class="st">301</span><span class="sc">\t</span><span class="st">2.5&quot;</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>), continuous_path)</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>continuous_annotations <span class="ot">&lt;-</span> <span class="fu">load_annotation</span>(</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  continuous_path,</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>  reference,</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="at">has_header =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>  <span class="at">value_columns =</span> <span class="st">&quot;score&quot;</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>)</span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>annotations <span class="ot">&lt;-</span> <span class="fu">union_annotations</span>(</span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>  <span class="fu">union_annotations</span>(binary_annotations, grouped_annotations),</span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>  continuous_annotations</span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>)</span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="fu">num_snp</span>(reference)</span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; [1] 8</span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">logpvec</span>(sumstats))</span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; [1] 1.920819 0.301030 1.301030 0.698970 0.397940 2.522879</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="fu">colnames</span>(<span class="fu">annomat</span>(annotations))</span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt; [1] &quot;anno1&quot;      &quot;anno2&quot;      &quot;coding&quot;     &quot;regulatory&quot; &quot;score&quot;</span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="fu">is_binary</span>(annotations)</span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="co">#&gt; [1]  TRUE  TRUE  TRUE  TRUE FALSE</span></span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="fu">annotation_metadata</span>(annotations)[<span class="sc">!</span><span class="fu">is_binary</span>(annotations)]</span>
+<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a><span class="co">#&gt; [1] &quot;{\&quot;source_file\&quot;:\&quot;/var/folders/nh/zxbq40293414vwvtxbyjw8hc0000gn/T//RtmpOrB2oD/file6d9bfdcf5e6.annot\&quot;,\&quot;source_file_has_header\&quot;:1,\&quot;num_source_intervals\&quot;:3,\&quot;value_column\&quot;:\&quot;score\&quot;}&quot;</span></span></code></pre></div>
 <p>R-native object caches are RDS files. They are useful for repeated
 analyses in the same R runtime.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>sumstats_cache <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.rds&quot;</span>)</span>
@@ -389,6 +419,44 @@ analyses in the same R runtime.</p>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>sumstats_cached <span class="ot">&lt;-</span> <span class="fu">load_sumstats_cache</span>(sumstats_cache)</span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">identical</span>(<span class="fu">is_present</span>(sumstats_cached), <span class="fu">is_present</span>(sumstats))</span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="allele-alignment" class="section level2">
+<h2>Allele Alignment</h2>
+<p>Loaders default to <code>match_by = &quot;genomic_position&quot;</code>,
+matching positions and alleles. This chrX example enables indel swaps in
+that mode. See <code>?allele_matching</code> for allele roles, matching
+options, and cache behavior.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>swap_root <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;allele_swaps&quot;</span>, <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span>, <span class="at">mustWork =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>swap_reference <span class="ot">&lt;-</span> <span class="fu">load_reference</span>(<span class="fu">file.path</span>(swap_root, <span class="st">&quot;reference.bim&quot;</span>), <span class="at">shards =</span> <span class="st">&quot;X&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>swap_stats <span class="ot">&lt;-</span> <span class="fu">load_sumstats</span>(<span class="fu">file.path</span>(swap_root, <span class="st">&quot;sumstats.tsv.gz&quot;</span>), swap_reference,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                            <span class="at">allow_indel_swaps =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>swap_genotype <span class="ot">&lt;-</span> <span class="fu">load_genotype</span>(<span class="fu">file.path</span>(swap_root, <span class="st">&quot;genotype&quot;</span>, <span class="st">&quot;@&quot;</span>), swap_reference,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                               <span class="at">allow_indel_swaps =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">eaf_vec</span>(swap_stats)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; [1] 0.8 0.2 0.8</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">is_allele_swapped</span>(swap_genotype)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; [1]  TRUE FALSE  TRUE</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">fetch_genotypes_int8</span>(swap_genotype, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; [1,]    2    0    2</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; [2,]    0    2    0</span></span></code></pre></div>
+<p><code>eaf_vec()</code> gives the frequency of the reference panel’s
+<code>a1</code> (ALT) allele, and <code>fetch_genotypes_int8()</code>
+counts copies of that allele. <code>is_allele_swapped()</code> shows
+which variants required count inversion.</p>
+<p>To select marker IDs instead of positions, both loaders accept
+<code>match_by = &quot;id&quot;</code>; allele matching is still required. For
+example:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>trait_by_id <span class="ot">&lt;-</span> <span class="fu">load_sumstats</span>(path, reference, <span class="at">match_by =</span> <span class="st">&quot;id&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>genotype_by_id <span class="ot">&lt;-</span> <span class="fu">load_genotype</span>(bfile_prefix, reference, <span class="at">match_by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div>
+<p>ID mode supports non-palindromic SNVs, including strand complements.
+Comparison is case-sensitive: <code>rs123</code> and <code>RS123</code>
+do not match. Sumstats require <code>SNP</code>, the allele columns, and
+<code>P</code> and ignore coordinates, searching all source rows;
+genotypes search only the corresponding chromosome. Reference ID/allele
+keys are checked for ambiguity across the supplied panel in both
+loaders. See <code>?allele_matching</code> for eligibility and duplicate
+handling.</p>
 </div>
 <div id="ld-panels" class="section level2">
 <h2>LD Panels</h2>
@@ -398,42 +466,46 @@ distribution that already includes the R reference-cache sidecar. For
 real analyses, run <code>prepare_ld_npz_for_r()</code> once on the
 Python-built <code>ld_npz/</code> directory for the same harmonized
 input set, then load that directory with <code>load_ld()</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>ld_root <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;ld&quot;</span>, <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>ld <span class="ot">&lt;-</span> <span class="fu">load_ld</span>(ld_root)</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">num_snp</span>(ld)</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; [1] 8</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="fu">a1freq</span>(ld)</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; [1] 0.30 0.40 0.20 0.35 0.15 0.28 0.32 0.22</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>ld_root <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;ld&quot;</span>, <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>ld <span class="ot">&lt;-</span> <span class="fu">load_ld</span>(ld_root)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">num_snp</span>(ld)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [1] 8</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">a1freq</span>(ld)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [1] 0.30 0.40 0.20 0.35 0.15 0.28 0.32 0.22</span></span></code></pre></div>
 <p><code>multiply_r2()</code> multiplies aligned vectors or matrices by
 LD <code>r^2</code>. <code>fast_prune()</code> applies greedy LD pruning
 to aligned scores.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>scores <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(<span class="fu">num_snp</span>(ld))</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">multiply_r2</span>(ld, scores)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; [1]  2.8900  3.8100  3.0900  6.9500  6.9600  8.9575 10.5150  8.8575</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>logp <span class="ot">&lt;-</span> <span class="fu">rev</span>(<span class="fu">seq_len</span>(<span class="fu">num_snp</span>(ld)))</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="fu">fast_prune</span>(logp, ld, <span class="at">r2_threshold =</span> <span class="fl">0.35</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; [1]   8 NaN   6   5 NaN   3 NaN   1</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>scores <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(<span class="fu">num_snp</span>(ld))</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">multiply_r2</span>(ld, scores)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; [1]  2.8900  3.8100  3.0900  6.9500  6.9600  8.9575 10.5150  8.8575</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>logp <span class="ot">&lt;-</span> <span class="fu">rev</span>(<span class="fu">seq_len</span>(<span class="fu">num_snp</span>(ld)))</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">fast_prune</span>(logp, ld, <span class="at">r2_threshold =</span> <span class="fl">0.35</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; [1]   8 NaN   6   5 NaN   3 NaN   1</span></span></code></pre></div>
 </div>
 <div id="genotype-metadata-and-fetching" class="section level2">
 <h2>Genotype Metadata And Fetching</h2>
-<p>Genotype panels keep PLINK metadata and fetch hardcalls on demand.
-The original BED files must remain available unless a replacement
-<code>bed_path</code> is supplied.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>ref_chr1 <span class="ot">&lt;-</span> <span class="fu">load_reference</span>(<span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;reference_chr1.bim&quot;</span>, <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span>))</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>bed_chr1 <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;genotype_1.bed&quot;</span>, <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>genotype <span class="ot">&lt;-</span> <span class="fu">load_genotype</span>(<span class="fu">sub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">.bed$&quot;</span>, <span class="st">&quot;&quot;</span>, bed_chr1), ref_chr1)</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>geno <span class="ot">&lt;-</span> <span class="fu">fetch_genotypes_int8</span>(genotype, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">dim</span>(geno)</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [1] 4 2</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">head</span>(geno)</span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2]</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; [1,]    2    2</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; [2,]    2    2</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; [3,]    2    2</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; [4,]    2    2</span></span></code></pre></div>
+<p>Genotype panels read calls from PLINK BED files when you request
+them. Keep those files available; if you move them, supply their new
+location with <code>bed_path</code>. A replacement file must keep the
+same variants, samples, and allele order. Counts use the usual 0/1/2
+scale; use <code>haploid_mode = &quot;ploidy_scaled&quot;</code> to adjust for
+biological ploidy, such as male chrX. See <code>?allele_matching</code>
+for allele orientation and BED overrides.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>ref_chr1 <span class="ot">&lt;-</span> <span class="fu">load_reference</span>(<span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;reference_chr1.bim&quot;</span>, <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>bed_chr1 <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;genotype_1.bed&quot;</span>, <span class="at">package =</span> <span class="st">&quot;statgen&quot;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>genotype <span class="ot">&lt;-</span> <span class="fu">load_genotype</span>(<span class="fu">sub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">.bed$&quot;</span>, <span class="st">&quot;&quot;</span>, bed_chr1), ref_chr1)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>geno <span class="ot">&lt;-</span> <span class="fu">fetch_genotypes_int8</span>(genotype, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">dim</span>(geno)</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; [1] 4 2</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">head</span>(geno)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2]</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; [1,]    2    2</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; [2,]    2    2</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; [3,]    2    2</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; [4,]    2    2</span></span></code></pre></div>
 </div>
 
 

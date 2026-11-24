@@ -27,3 +27,27 @@ install.packages("statgen")
 
 - [Main statgen repository](https://github.com/precimed/statgen)
 - Package vignette: `vignette("statgen")`
+
+## Allele Alignment
+
+Loaders default to matching genomic position and alleles, accepting reversed
+SNVs automatically and indel swaps by opt-in. To match marker IDs and alleles:
+
+```r
+trait <- load_sumstats(path, reference, match_by = "id")
+genotype <- load_genotype(bfile_prefix, reference, match_by = "id")
+```
+
+ID mode matches SNVs other than A/T and C/G by case-sensitive marker ID,
+including strand complements. Both modes orient values to reference `a1`.
+See `?allele_matching` and `vignette("statgen")` for details and examples.
+
+## Annotation Loading
+
+`load_annotations()` loads one or more 3-column BED files as binary annotation
+columns. `load_annotation()` loads one BED-like source file and can paint
+selected numeric value columns as continuous annotations or expand one
+`group_column` into multiple binary annotations. Both return an
+`AnnotationPanel` whose `annomat()` accessor is a sparse numeric
+`Matrix::dgCMatrix`; `is_binary()` and `annotation_metadata()` expose per-column
+metadata.

@@ -42,6 +42,7 @@ load_reference <- function(path, shards = NULL) {
         bim$a1_hash64, bim$a2_hash64
       )
     }
+    for (shard in out) .validate_reference_keys(shard)
     return(.new_reference_panel(out))
   }
 
@@ -61,6 +62,7 @@ load_reference <- function(path, shards = NULL) {
       bim$a1_hash64[keep], bim$a2_hash64[keep]
     )
   }
+  for (shard in out) .validate_reference_keys(shard)
   .new_reference_panel(out)
 }
 
@@ -396,4 +398,27 @@ print.ReferencePanel <- function(x, ...) {
     return(direct)
   }
   .decode_text_payload(x[[paste0(field, "_text")]], x$num_snp, field)
+}
+
+.validate_reference_keys <- function(shard) {
+  # Ordered-key duplicates have already been rejected by the BIM parser.
+  snv <- is_single_nucleotide_variant(shard)
+  positions <- bp(shard)[snv]
+  a <- a1_hash64(shard)[snv]
+  b <- a2_hash64(shard)[snv]
+  lo <- a
+  hi <- b
+  reverse <- a > b
+  lo[reverse] <- b[reverse]
+  hi[reverse] <- a[reverse]
+  ord <- .variant_key_order(positions, lo, hi)
+  left <- ord[-length(ord)]
+  right <- ord[-1L]
+  duplicate <- positions[left] == positions[right] & lo[left] == lo[right] & hi[left] == hi[right]
+  if (any(duplicate)) {
+    pos <- right[which(duplicate)[[1]]]
+    stop(sprintf("reference shard %s: reciprocal SNV keys are not allowed at bp=%d",
+                 shard$label, positions[pos]), call. = FALSE)
+  }
+  invisible(NULL)
 }
